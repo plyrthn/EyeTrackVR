@@ -66,11 +66,7 @@ jobs:
 
       - name: Install python dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install
-
-      - name: Install Linux dependencies
-        if: ${{ matrix.os == 'ubuntu-latest'}}
-        run: sudo apt install build-essential curl wget libssl-dev libeigen3-dev
+        run: poetry install --no-root
 
       - run: source $VENV
 
