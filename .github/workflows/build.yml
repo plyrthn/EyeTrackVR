@@ -64,6 +64,11 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true' && matrix.os == 'ubuntu-latest'
         run: sudo apt install build-essential curl wget libssl-dev libeigen3-dev
 
+      - name: Install Windows dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true' && matrix.os == 'windows-latest'
+        run: |
+          vcpkg install eigen3:x64-windows
+
       - name: Install python dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-root
@@ -81,7 +86,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: production-files
+          name: production-files-${{ matrix.os }}
           path: dist
   deploy:
     runs-on: ubuntu-latest
@@ -94,10 +99,9 @@ jobs:
           fetch-depth: 0
       - name: Create Directory
         run: mkdir -p dist
-      - name: Download artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: production-files
           path: ./dist
       - name: Setup node
         uses: actions/setup-node@v3
@@ -126,4 +130,6 @@ jobs:
       - name: "♻️ remove build artifacts"
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: production-files
+          name: |
+            production-files-ubuntu-latest
+            production-files-windows-latest
