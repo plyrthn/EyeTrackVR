@@ -1,19 +1,28 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
-import openvr
+import sys
+import os
+sys.setrecursionlimit(sys.getrecursionlimit() * 5)
 
 block_cipher = None
 
 resources=[("Audio/*", "Audio"), ("Images/*", "Images/"), ("pye3d/refraction_models/*", "pye3d/refraction_models/"), ("Models/*", "Models/"),("Tools/*", "Tools/")]
 
+binaries = []
+if sys.platform == 'win32':
+    try:
+        import openvr
+        binaries = [
+            (os.path.abspath(openvr.__file__ + "\\..\\libopenvr_api_32.dll"), "openvr"),
+            (os.path.abspath(openvr.__file__ + "\\..\\libopenvr_api_64.dll"), "openvr"),
+        ]
+    except ImportError:
+        pass
+
 a = Analysis(
 ['eyetrackapp.py'],
 pathex=[],
-binaries=[
-    (os.path.abspath(openvr.__file__ + "\\..\\libopenvr_api_32.dll"), "openvr"),
-    (os.path.abspath(openvr.__file__ + "\\..\\libopenvr_api_64.dll"), "openvr"),
-],
+binaries=binaries,
 datas=resources,
 hiddenimports=['cv2', 'numpy', 'PySimpleGui', 'pkg_resources.extern'],
 hookspath=[],
@@ -47,5 +56,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon="Images/logo.ico", 
+    icon="Images/logo.ico",
 )
